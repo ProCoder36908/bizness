@@ -799,6 +799,36 @@
         @keyframes fadeIn {
             to { opacity: 1; }
         }
+
+        #settingsToggle {
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          padding: 10px 15px;
+          border: none;
+          border-radius: 50%;
+          background-color: var(--primary-color);
+          color: white;
+          font-size: 18px;
+          cursor: pointer;
+          z-index: 9999;
+        }
+
+        #settingsPanel {
+          position: fixed;
+          top: 70px;
+          right: 20px;
+          background: rgba(0, 0, 0, 0.85);
+          padding: 15px;
+          border-radius: 10px;
+          color: white;
+          z-index: 9999;
+          font-family: 'Poppins', sans-serif;
+        }
+        #settingsPanel label, #settingsPanel button {
+          margin-top: 10px;
+          display: block;
+        }
     </style>
 </head>
 <body>
@@ -2773,6 +2803,86 @@
 
         <!-- Scroll to Top Button -->
         <button id="scrollToTopBtn" class="btn" title="Go to top"><i class="fas fa-arrow-up"></i></button>
+
+        <!-- ⚙ Settings Panel HTML -->
+        <button id="settingsToggle">⚙</button>
+        <div id="settingsPanel" style="display: none;">
+          <h2>Settings</h2>
+          <label><input type="checkbox" id="darkModeToggle"> Dark Mode</label><br>
+          <label><input type="checkbox" id="autoCollectToggle"> Auto Collect Income</label><br>
+          <label>Volume: <input type="range" id="volumeSlider" min="0" max="100" value="100"></label><br>
+          <button id="resetGameBtn">Reset Game</button>
+        </div>
+
+        <!-- ⚙ Settings Panel CSS -->
+        <style>
+        #settingsToggle {
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          padding: 10px 15px;
+          border: none;
+          border-radius: 50%;
+          background-color: var(--primary-color);
+          color: white;
+          font-size: 18px;
+          cursor: pointer;
+          z-index: 9999;
+        }
+
+        #settingsPanel {
+          position: fixed;
+          top: 70px;
+          right: 20px;
+          background: rgba(0, 0, 0, 0.85);
+          padding: 15px;
+          border-radius: 10px;
+          color: white;
+          z-index: 9999;
+          font-family: 'Poppins', sans-serif;
+        }
+        #settingsPanel label, #settingsPanel button {
+          margin-top: 10px;
+          display: block;
+        }
+        </style>
+
+        <!-- ⚙ Settings Panel JS -->
+        <script>
+        const settingsPanel = document.getElementById("settingsPanel");
+        document.getElementById("settingsToggle").onclick = () => {
+          settingsPanel.style.display = (settingsPanel.style.display === 'none') ? 'block' : 'none';
+        };
+
+        window.addEventListener("load", () => {
+          document.getElementById('darkModeToggle').checked = localStorage.getItem('darkMode') === 'true';
+          document.getElementById('autoCollectToggle').checked = localStorage.getItem('autoCollect') === 'true';
+          document.getElementById('volumeSlider').value = localStorage.getItem('volume') || 100;
+          applySettings();
+        });
+
+        document.getElementById("darkModeToggle").onchange = (e) => {
+          localStorage.setItem('darkMode', e.target.checked);
+          applySettings();
+        };
+        document.getElementById("autoCollectToggle").onchange = (e) => {
+          localStorage.setItem('autoCollect', e.target.checked);
+        };
+        document.getElementById("volumeSlider").oninput = (e) => {
+          localStorage.setItem('volume', e.target.value);
+        };
+        document.getElementById("resetGameBtn").onclick = () => {
+          if (confirm("Reset all game progress?")) {
+            localStorage.clear();
+            location.reload();
+          }
+        };
+        function applySettings() {
+          const dark = document.getElementById('darkModeToggle').checked;
+          document.body.style.backgroundColor = dark ? '#121212' : 'var(--background-color)';
+          document.body.style.color = dark ? '#fff' : 'var(--text-color)';
+        }
+        </script>
 
     </div> <!-- Close mainContainer -->
 </body>
