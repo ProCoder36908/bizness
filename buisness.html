@@ -1553,8 +1553,15 @@
                     gameState.cash -= price;
                     gameState.portfolio.stocks[symbol] = (gameState.portfolio.stocks[symbol] || 0) + 1;
                     gameState.dailyProgress.stock_trades += 1;
+                    
+                    // Store the original purchase price
+                    const stock = stocks.find(s => s.symbol === symbol);
+                    if (stock) {
+                        stock.originalPrice = price;
+                    }
+                    
                     updateUI();
-                    saveGameState(); // Save after purchase
+                    saveGameState();
                     alert(`Bought 1 share of ${symbol} for $${price.toFixed(2)}!`);
                 } else {
                     alert('Not enough cash!');
@@ -2441,14 +2448,26 @@
                 if (gameState.portfolio.stocks[symbol] && gameState.portfolio.stocks[symbol] > 0) {
                     const stock = stocks.find(s => s.symbol === symbol);
                     if (stock) {
-                        gameState.cash += stock.price; // Sell at current price
+                        // Calculate potential loss/gain based on current price
+                        const currentValue = stock.price;
+                        const originalValue = stock.originalPrice || stock.price; // Use original price if available
+                        const difference = currentValue - originalValue;
+                        
+                        gameState.cash += currentValue; // Sell at current price
                         gameState.portfolio.stocks[symbol]--;
                         if (gameState.portfolio.stocks[symbol] === 0) {
                             delete gameState.portfolio.stocks[symbol];
                         }
                         updateUI();
                         saveGameState();
-                        alert(`Sold 1 share of ${symbol} for $${stock.price.toFixed(2)}!`);
+                        
+                        if (difference < 0) {
+                            alert(`Sold 1 share of ${symbol} for $${currentValue.toFixed(2)}! You lost $${Math.abs(difference).toFixed(2)} on this trade.`);
+                        } else if (difference > 0) {
+                            alert(`Sold 1 share of ${symbol} for $${currentValue.toFixed(2)}! You made $${difference.toFixed(2)} on this trade.`);
+                        } else {
+                            alert(`Sold 1 share of ${symbol} for $${currentValue.toFixed(2)}! No profit or loss on this trade.`);
+                        }
                     }
                 } else {
                     alert('You don\'t own any shares of this stock!');
@@ -2460,12 +2479,22 @@
                     const stock = stocks.find(s => s.symbol === symbol);
                     if (stock) {
                         const shares = gameState.portfolio.stocks[symbol];
-                        const totalValue = stock.price * shares;
-                        gameState.cash += totalValue; // Sell all shares at current price
+                        const currentValue = stock.price * shares;
+                        const originalValue = (stock.originalPrice || stock.price) * shares;
+                        const difference = currentValue - originalValue;
+                        
+                        gameState.cash += currentValue;
                         delete gameState.portfolio.stocks[symbol];
                         updateUI();
                         saveGameState();
-                        alert(`Cashed in all ${shares} shares of ${symbol} for $${totalValue.toFixed(2)}!`);
+                        
+                        if (difference < 0) {
+                            alert(`Cashed in all ${shares} shares of ${symbol} for $${currentValue.toFixed(2)}! You lost $${Math.abs(difference).toFixed(2)} on this trade.`);
+                        } else if (difference > 0) {
+                            alert(`Cashed in all ${shares} shares of ${symbol} for $${currentValue.toFixed(2)}! You made $${difference.toFixed(2)} on this trade.`);
+                        } else {
+                            alert(`Cashed in all ${shares} shares of ${symbol} for $${currentValue.toFixed(2)}! No profit or loss on this trade.`);
+                        }
                     }
                 } else {
                     alert('You don\'t own any shares of this stock to cash in!');
@@ -2475,11 +2504,23 @@
             function cashInProperty(name) {
                 if (gameState.portfolio.realEstate[name]) {
                     const property = gameState.portfolio.realEstate[name];
-                    gameState.cash += property.value; // Sell at purchase value (for simplicity)
+                    // Add market fluctuation to property value
+                    const marketFluctuation = (Math.random() * 0.4) - 0.2; // Random value between -20% and +20%
+                    const currentValue = Math.round(property.value * (1 + marketFluctuation));
+                    const difference = currentValue - property.value;
+                    
+                    gameState.cash += currentValue;
                     delete gameState.portfolio.realEstate[name];
                     updateUI();
                     saveGameState();
-                    alert(`Cashed in ${name} for $${property.value.toLocaleString()}!`);
+                    
+                    if (difference < 0) {
+                        alert(`Sold ${name} for $${currentValue.toLocaleString()}! You lost $${Math.abs(difference).toLocaleString()} on this investment.`);
+                    } else if (difference > 0) {
+                        alert(`Sold ${name} for $${currentValue.toLocaleString()}! You made $${difference.toLocaleString()} on this investment.`);
+                    } else {
+                        alert(`Sold ${name} for $${currentValue.toLocaleString()}! No profit or loss on this investment.`);
+                    }
                 } else {
                     alert('You don\'t own this property!');
                 }
@@ -2488,22 +2529,50 @@
             function cashInBusiness(name) {
                 if (gameState.portfolio.businesses[name]) {
                     const business = gameState.portfolio.businesses[name];
-                    gameState.cash += business.value; // Sell at investment value
+                    // Add market fluctuation to business value
+                    const marketFluctuation = (Math.random() * 0.4) - 0.2; // Random value between -20% and +20%
+                    const currentValue = Math.round(business.value * (1 + marketFluctuation));
+                    const difference = currentValue - business.value;
+                    
+                    gameState.cash += currentValue;
                     delete gameState.portfolio.businesses[name];
                     updateUI();
                     saveGameState();
-                    alert(`Cashed in ${name} for $${business.value.toLocaleString()}!`);
+                    
+                    if (difference < 0) {
+                        alert(`Sold ${name} for $${currentValue.toLocaleString()}! You lost $${Math.abs(difference).toLocaleString()} on this investment.`);
+                    } else if (difference > 0) {
+                        alert(`Sold ${name} for $${currentValue.toLocaleString()}! You made $${difference.toLocaleString()} on this investment.`);
+                    } else {
+                        alert(`Sold ${name} for $${currentValue.toLocaleString()}! No profit or loss on this investment.`);
+                    }
+                } else {
+                    alert('You don\'t own this business!');
                 }
             }
 
             function cashInBond(name) {
                 if (gameState.portfolio.bonds[name]) {
                     const bond = gameState.portfolio.bonds[name];
-                    gameState.cash += bond.value; // Sell at purchase value
+                    // Add small market fluctuation to bond value (bonds are more stable)
+                    const marketFluctuation = (Math.random() * 0.2) - 0.1; // Random value between -10% and +10%
+                    const currentValue = Math.round(bond.value * (1 + marketFluctuation));
+                    const difference = currentValue - bond.value;
+                    
+                    gameState.cash += currentValue;
                     delete gameState.portfolio.bonds[name];
                     updateUI();
                     saveGameState();
-                    alert(`Cashed in ${name} bond for $${bond.value.toLocaleString()}!`);
+                    
+                    if (difference < 0) {
+                        alert(`Sold ${name} bond for $${currentValue.toLocaleString()}! You lost $${Math.abs(difference).toLocaleString()} on this investment.`);
+                    } else if (difference > 0) {
+                        alert(`Sold ${name} bond for $${currentValue.toLocaleString()}! You made $${difference.toLocaleString()} on this investment.`);
+                    } else {
+                        alert(`Sold ${name} bond for $${currentValue.toLocaleString()}! No profit or loss on this investment.`);
+                    }
+                } else {
+                    alert('You don\'t own this bond!');
                 }
             }
 
