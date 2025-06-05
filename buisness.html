@@ -208,8 +208,8 @@
         }
 
         .portfolio {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            display: flex;
+            overflow-x: auto;
             gap: 20px;
             padding: 20px;
             max-width: 1400px;
@@ -221,14 +221,14 @@
         }
 
         .glass-card {
+            min-width: 300px;
+            flex-shrink: 0;
             background: var(--glass-bg);
             backdrop-filter: blur(10px);
             border-radius: 15px;
             padding: 20px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             transition: all 0.3s ease;
-            max-width: 1400px;
-            margin: 0 auto;
             /* Apply entrance animation */
             animation: section-entrance 0.8s ease-out forwards;
             opacity: 0; /* Start hidden for animation */
@@ -734,6 +734,49 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* Add new CSS styles for portfolio card dropdowns */
+        .glass-card .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px; /* Adjust spacing */
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer; /* Indicate clickability */
+            transition: border-color 0.3s ease; /* Smooth transition for border */
+        }
+
+        .glass-card .card-header:hover {
+            border-bottom-color: var(--primary-color); /* Highlight border on hover */
+        }
+
+        .glass-card .card-toggle-icon {
+            font-size: 1.2em; /* Slightly larger icon */
+            transition: transform 0.3s ease; /* Smooth rotation */
+        }
+
+        .glass-card .card-content {
+            max-height: 500px; /* Set max-height for expanded state */
+            overflow-y: auto;
+            transition: max-height 0.5s ease-in-out; /* Smooth collapse/expand */
+        }
+
+        .glass-card .card-content.collapsed {
+            max-height: 0;
+            overflow: hidden;
+        }
+
+        /* Add fade-in transition for list items */
+        /* Added .card-content > * to apply animation to direct children of collapsed content */
+        .list-item, .portfolio-item, .widget-grid-item, .mini-map-item, .owned-asset-item, .card-content > * {
+            opacity: 0; /* Start invisible */
+            animation: fadeIn 0.5s ease-out forwards; /* Apply fade-in animation */
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
     </style>
 </head>
 <body>
@@ -761,62 +804,104 @@
                 <i class="fas fa-chart-pie stat-icon"></i>
                 <h3>Net Worth: $<span id="netWorth">1000</span></h3>
             </div>
+            <!-- Settings Button -->
+            <div class="stat">
+                <button class="btn" onclick="showSettings()" title="Game Settings" style="padding: 10px 15px;"><i class="fas fa-cog"></i></button>
+            </div>
         </div>
     </div>
 
     <div class="quick-actions">
-        <button class="btn" onclick="showHustles()" title="Explore available hustles to earn quick cash"><i class="fas fa-briefcase"></i> Hustles</button>
-        <button class="btn" onclick="showStockMarket()" title="Trade stocks to grow your wealth"><i class="fas fa-chart-line"></i> Stock Market</button>
-        <button class="btn" onclick="showRealEstate()" title="Invest in properties for passive income"><i class="fas fa-home"></i> Real Estate</button>
-        <button class="btn" onclick="showBusinesses()" title="Start or buy businesses for daily profits"><i class="fas fa-building"></i> Businesses</button>
-        <button class="btn" onclick="showBonds()" title="Purchase bonds for steady returns"><i class="fas fa-file-invoice-dollar"></i> Bonds</button>
-        <button class="btn" onclick="showSideGigs()" title="Find and work on freelance gigs"><i class="fas fa-tasks"></i> Side Gigs</button>
-        <button class="btn" onclick="showStarterBusinesses()" title="Invest in small businesses to get started"><i class="fas fa-store"></i> Starter Businesses</button>
-        <button class="btn" onclick="showSittingServices()" title="Offer various sitting services for daily pay"><i class="fas fa-paw"></i> Sitting Services</button>
-        <button class="btn" onclick="showCryptoFaucets()" title="Claim small amounts of cryptocurrency"><i class="fas fa-coins"></i> Crypto Faucets</button>
-        <button class="btn" onclick="showMentors()" title="Hire mentors for tips and bonuses"><i class="fas fa-user-tie"></i> Mentors</button>
-        <button class="btn" onclick="showAchievements()" title="View your completed and pending achievements"><i class="fas fa-trophy"></i> Achievements</button>
-        <button class="btn" onclick="showDailyChallenges()" title="See and track your daily goals"><i class="fas fa-calendar-check"></i> Daily Challenges</button>
+        <button class="btn" onclick="showHustles(this)" title="Explore available hustles to earn quick cash"><i class="fas fa-briefcase"></i> Hustles</button>
+        <button class="btn" onclick="showStockMarket(this)" title="Trade stocks to grow your wealth"><i class="fas fa-chart-line"></i> Stock Market</button>
+        <button class="btn" onclick="showRealEstate(this)" title="Invest in properties for passive income"><i class="fas fa-home"></i> Real Estate</button>
+        <button class="btn" onclick="showBusinesses(this)" title="Start or buy businesses for daily profits"><i class="fas fa-building"></i> Businesses</button>
+        <button class="btn" onclick="showBonds(this)" title="Purchase bonds for steady returns"><i class="fas fa-file-invoice-dollar"></i> Bonds</button>
+        <button class="btn" onclick="showSideGigs(this)" title="Find and work on freelance gigs"><i class="fas fa-tasks"></i> Side Gigs</button>
+        <button class="btn" onclick="showStarterBusinesses(this)" title="Invest in small businesses to get started"><i class="fas fa-store"></i> Starter Businesses</button>
+        <button class="btn" onclick="showSittingServices(this)" title="Offer various sitting services for daily pay"><i class="fas fa-paw"></i> Sitting Services</button>
+        <button class="btn" onclick="showCryptoFaucets(this)" title="Claim small amounts of cryptocurrency"><i class="fas fa-coins"></i> Crypto Faucets</button>
+        <button class="btn" onclick="showMentors(this)" title="Hire mentors for tips and bonuses"><i class="fas fa-user-tie"></i> Mentors</button>
+        <button class="btn" onclick="showAchievements(this)" title="View your completed and pending achievements"><i class="fas fa-trophy"></i> Achievements</button>
+        <button class="btn" onclick="showDailyChallenges(this)" title="See and track your daily goals"><i class="fas fa-calendar-check"></i> Daily Challenges</button>
         <button class="btn" onclick="showTutorial()" title="Learn how to play the game"><i class="fas fa-question-circle"></i> Tutorial</button>
+        <button class="btn" onclick="showUpgrades(this)" title="Improve your abilities and investments"><i class="fas fa-arrow-alt-circle-up"></i> Upgrades</button>
+        <button class="btn" onclick="collapseAllPortfolioCards()" title="Collapse all portfolio sections"><i class="fas fa-compress-alt"></i> Collapse All</button>
+        <button class="btn" onclick="expandAllPortfolioCards()" title="Expand all portfolio sections"><i class="fas fa-expand-alt"></i> Expand All</button>
     </div>
 
     <div class="portfolio">
-        <div class="glass-card">
-            <h2><i class="fas fa-chart-line section-icon"></i> Stocks</h2>
-            <p>Value: $<span id="stockValue">0</span></p>
-            <div id="stockDetails"></div>
+        <div class="glass-card" id="stocks-card">
+            <div class="card-header" onclick="togglePortfolioCard('stocks-card')">
+                <h2><i class="fas fa-chart-line section-icon"></i> Stocks</h2>
+                <i class="fas fa-chevron-up card-toggle-icon"></i>
             </div>
-        <div class="glass-card">
-            <h2><i class="fas fa-home section-icon"></i> Real Estate</h2>
-            <p>Value: $<span id="realEstateValue">0</span></p>
-            <div id="realEstateDetails"></div>
+            <div class="card-content">
+                <p>Value: $<span id="stockValue">0</span></p>
+                <div id="stockDetails"></div>
+            </div>
         </div>
-        <div class="glass-card">
-            <h2><i class="fas fa-building section-icon"></i> Businesses</h2>
-            <p>Value: $<span id="businessValue">0</span></p>
-            <div id="businessDetails"></div>
+        <div class="glass-card" id="real-estate-card">
+            <div class="card-header" onclick="togglePortfolioCard('real-estate-card')">
+                <h2><i class="fas fa-home section-icon"></i> Real Estate</h2>
+                <i class="fas fa-chevron-up card-toggle-icon"></i>
             </div>
-        <div class="glass-card">
-            <h2><i class="fas fa-file-invoice-dollar section-icon"></i> Bonds</h2>
-            <p>Value: $<span id="bondValue">0</span></p>
-            <div id="bondDetails"></div>
+            <div class="card-content">
+                <p>Value: $<span id="realEstateValue">0</span></p>
+                <div id="realEstateDetails"></div>
+            </div>
         </div>
-        <div class="glass-card">
-            <h2><i class="fas fa-tasks section-icon"></i> Side Gigs</h2>
-            <p>Value: $<span id="sideGigValue">0</span></p>
-            <div id="sideGigDetails"></div>
-                </div>
-        <div class="glass-card">
-            <h2><i class="fas fa-store section-icon"></i> Starter Businesses</h2>
-            <p>Value: $<span id="starterBusinessValue">0</span></p>
-            <div id="starterBusinessDetails"></div>
-                </div>
-        <div class="glass-card">
-            <h2><i class="fas fa-paw section-icon"></i> Sitting Services</h2>
-            <p>Value: $<span id="sittingServiceValue">0</span></p>
-            <div id="sittingServiceDetails"></div>
-                </div>
+        <div class="glass-card" id="businesses-card">
+            <div class="card-header" onclick="togglePortfolioCard('businesses-card')">
+                <h2><i class="fas fa-building section-icon"></i> Businesses</h2>
+                <i class="fas fa-chevron-up card-toggle-icon"></i>
             </div>
+            <div class="card-content">
+                <p>Value: $<span id="businessValue">0</span></p>
+                <div id="businessDetails"></div>
+            </div>
+        </div>
+        <div class="glass-card" id="bonds-card">
+            <div class="card-header" onclick="togglePortfolioCard('bonds-card')">
+                <h2><i class="fas fa-file-invoice-dollar section-icon"></i> Bonds</h2>
+                <i class="fas fa-chevron-up card-toggle-icon"></i>
+            </div>
+            <div class="card-content">
+                <p>Value: $<span id="bondValue">0</span></p>
+                <div id="bondDetails"></div>
+            </div>
+        </div>
+        <div class="glass-card" id="side-gigs-card">
+             <div class="card-header" onclick="togglePortfolioCard('side-gigs-card')">
+                 <h2><i class="fas fa-tasks section-icon"></i> Side Gigs</h2>
+                 <i class="fas fa-chevron-up card-toggle-icon"></i>
+            </div>
+            <div class="card-content">
+                 <p>Value: $<span id="sideGigValue">0</span></p>
+                 <div id="sideGigDetails"></div>
+            </div>
+        </div>
+        <div class="glass-card" id="starter-businesses-card">
+             <div class="card-header" onclick="togglePortfolioCard('starter-businesses-card')">
+                 <h2><i class="fas fa-store section-icon"></i> Starter Businesses</h2>
+                 <i class="fas fa-chevron-up card-toggle-icon"></i>
+             </div>
+             <div class="card-content">
+                 <p>Value: $<span id="starterBusinessValue">0</span></p>
+                 <div id="starterBusinessDetails"></div>
+             </div>
+        </div>
+        <div class="glass-card" id="sitting-services-card">
+             <div class="card-header" onclick="togglePortfolioCard('sitting-services-card')">
+                 <h2><i class="fas fa-paw section-icon"></i> Sitting Services</h2>
+                 <i class="fas fa-chevron-up card-toggle-icon"></i>
+             </div>
+             <div class="card-content">
+                 <p>Value: $<span id="sittingServiceValue">0</span></p>
+                 <div id="sittingServiceDetails"></div>
+             </div>
+        </div>
+    </div>
 
     <!-- Game Modal -->
     <div id="gameModal" class="modal">
@@ -1545,10 +1630,11 @@
             document.getElementById('net-worth-value').textContent = formatNumber(calculateNetWorth());
 
             // Update Investment Overview
-            document.getElementById('stocks-overview').textContent = formatNumber(calculateStockValue());
-            document.getElementById('real-estate-overview').textContent = formatNumber(calculateRealEstateValue());
-            document.getElementById('businesses-overview').textContent = formatNumber(calculateBusinessValue());
-            document.getElementById('bonds-overview').textContent = formatNumber(calculateBondValue());
+            // Changed to display the number of items owned instead of the total value
+            document.getElementById('stocks-overview').textContent = Object.keys(gameState.portfolio.stocks).length; // Count distinct stock types
+            document.getElementById('real-estate-overview').textContent = Object.keys(gameState.portfolio.realEstate).length; // Count properties
+            document.getElementById('businesses-overview').textContent = Object.keys(gameState.portfolio.businesses).length; // Count businesses
+            document.getElementById('bonds-overview').textContent = Object.keys(gameState.portfolio.bonds).length; // Count bonds
 
             // Update Daily Income
             document.getElementById('business-income').textContent = formatNumber(calculateBusinessIncome());
@@ -2156,20 +2242,32 @@
         document.addEventListener('DOMContentLoaded', function() {
             loadGameState(); // Load saved game state
             initializeStockHistories(); // Initialize stock histories for all stocks
-            
+
+            // Assign the daily challenge based on the current game day
+            gameState.dailyChallenge = dailyChallenges[gameState.day % dailyChallenges.length];
+
+            // Energy Regeneration: Gain 5 energy every 5 seconds
+            setInterval(() => {
+                if (gameState.energy < 100) {
+                    gameState.energy = Math.min(gameState.energy + 5, 100); // Add energy, cap at 100
+                    updateUI(); // Update UI to show new energy
+                }
+            }, 5000); // 5000 milliseconds = 5 seconds
+
+
             setInterval(() => {
                 try {
                     updateStockPrices();
                 } catch (error) {
                 }
-                
+
                 if (document.getElementById('gameModal').style.display === 'block') {
                     showStockMarket(); // Only refresh if market is open
                 }
                 updateUI();
                 saveGameState(); // Save periodically
             }, 60000); // Update every minute
-            
+
             setTimeout(() => {
                 try {
                     updateStockPrices();
@@ -2583,6 +2681,58 @@
                 originalOnClick.call(this, this);
             };
         });
+
+        // Add JavaScript function to toggle portfolio cards
+        function togglePortfolioCard(cardId) {
+            const card = document.getElementById(cardId);
+            const content = card.querySelector('.card-content');
+            const icon = card.querySelector('.card-toggle-icon');
+
+            if (content.classList.contains('collapsed')) {
+                content.classList.remove('collapsed');
+                if (icon) icon.className = 'fas fa-chevron-up card-toggle-icon';
+            } else {
+                content.classList.add('collapsed');
+                if (icon) icon.className = 'fas fa-chevron-down card-toggle-icon';
+            }
+        }
+
+        // Add JavaScript functions to collapse and expand all portfolio cards
+        function collapseAllPortfolioCards() {
+            const portfolioCards = document.querySelectorAll('.portfolio .glass-card');
+            portfolioCards.forEach(card => {
+                const content = card.querySelector('.card-content');
+                const icon = card.querySelector('.card-toggle-icon');
+                if (content && icon) {
+                    content.classList.add('collapsed');
+                    icon.className = 'fas fa-chevron-down card-toggle-icon';
+                }
+            });
+        }
+
+        function expandAllPortfolioCards() {
+            const portfolioCards = document.querySelectorAll('.portfolio .glass-card');
+            portfolioCards.forEach(card => {
+                const content = card.querySelector('.card-content');
+                const icon = card.querySelector('.card-toggle-icon');
+                if (content && icon) {
+                    content.classList.remove('collapsed');
+                    icon.className = 'fas fa-chevron-up card-toggle-icon';
+                }
+            });
+        }
+
+        // Add placeholder function for settings
+        function showSettings() {
+            alert('Settings - Feature coming soon!'); // Placeholder for settings functionality
+            // You can replace this with code to open a settings modal or page
+        }
+
+        // Add placeholder function for upgrades
+        function showUpgrades() {
+             alert('Upgrades - Feature coming soon!'); // Placeholder for upgrades functionality
+            // You can replace this with code to open an upgrades modal or page
+        }
     </script>
 
     <!-- Scroll to Top Button -->
